@@ -11,7 +11,7 @@ public class ShortcutDatabase extends SQLiteOpenHelper {
 
 	private static final String TAG = "com.yenhsun.floatingshortcut.ShortcutDatabase";
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	private static final String DATABASE = "short.db";
 

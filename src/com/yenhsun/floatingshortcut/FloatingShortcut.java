@@ -24,6 +24,8 @@ public class FloatingShortcut extends ImageView implements OnTouchListener {
 	private GestureListenerEvent mGestureListenerEvent;
 	private GestureDetector mGDetector;
 
+	private int mScreenWidth, mScreenHeight;
+
 	class GestureListenerEvent implements OnGestureListener {
 
 		@Override
@@ -104,7 +106,9 @@ public class FloatingShortcut extends ImageView implements OnTouchListener {
 		setBackgroundResource(R.drawable.ic_launcher);
 		mGestureListenerEvent = new GestureListenerEvent();
 		mGDetector = new GestureDetector(mGestureListenerEvent);
-		sComponentHeight = context.getResources().getDisplayMetrics().widthPixels / 10;
+		mScreenWidth = context.getResources().getDisplayMetrics().widthPixels;
+		mScreenHeight = context.getResources().getDisplayMetrics().heightPixels;
+		sComponentHeight = mScreenWidth / 10;
 		this.setOnTouchListener(this);
 		wm = (WindowManager) mContext.getSystemService("window");
 		wmParams = getDefaultWindowManagerParamsSettings();
