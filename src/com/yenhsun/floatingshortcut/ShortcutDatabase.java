@@ -48,7 +48,7 @@ public class ShortcutDatabase extends SQLiteOpenHelper {
 		if (DEBUG) {
 			Cursor c = mDB.query(TABLE, null, null, null, null, null, null);
 			while (c.moveToNext()) {
-				Log.i(TAG,
+				Log.i("QQ",
 						"pkg: " + c.getString(0) + ", clz: " + c.getString(1));
 			}
 		}
@@ -59,12 +59,29 @@ public class ShortcutDatabase extends SQLiteOpenHelper {
 		mDB.delete(TABLE, null, null);
 	}
 
-	public void insertShortcuts(ContentValues[] values) {
-		for (ContentValues v : values)
-			mDB.insert(TABLE, null, v);
+	private boolean isDuplicated(String pkg, String clz) {
+		Cursor c = mDB.query(TABLE, null, null, null, null, null, null);
+		while (c.moveToNext()) {
+			if (pkg.equals(c.getString(0)) && clz.equals(c.getString(1))) {
+				c.close();
+				return true;
+			}
+		}
+		return false;
 	}
 
-	public void insertShortcuts(ContentValues values) {
-		mDB.insert(TABLE, null, values);
+	public void insertShortcuts(ContentValues[] values) {
+		for (ContentValues v : values) {
+			if (!isDuplicated(v.getAsString(COLUMN_PACKAGENAME),
+					v.getAsString(COLUMN_CLASSNAME)))
+				mDB.insert(TABLE, null, v);
+
+		}
+	}
+
+	public void insertShortcuts(ContentValues v) {
+		if (!isDuplicated(v.getAsString(COLUMN_PACKAGENAME),
+				v.getAsString(COLUMN_CLASSNAME)))
+			mDB.insert(TABLE, null, v);
 	}
 }

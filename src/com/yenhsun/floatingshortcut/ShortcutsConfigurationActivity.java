@@ -63,6 +63,7 @@ public class ShortcutsConfigurationActivity extends Activity implements
 			DataHolder dh = new DataHolder();
 			dh.pkgName = apps.getString(0);
 			dh.clzName = apps.getString(1);
+			mDataList.add(dh);
 		}
 		apps.close();
 		fillInDataListIcon();
@@ -100,7 +101,6 @@ public class ShortcutsConfigurationActivity extends Activity implements
 
 	@Override
 	public void onClick(View v) {
-		Log.i("QQQQ", "click");
 		Intent startIntent = new Intent();
 		startIntent.setComponent(new ComponentName(
 				"com.yenhsun.floatingshortcut",

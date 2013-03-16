@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -96,7 +97,7 @@ public class ShortcutsControlPanel extends LinearLayout {
 
 	private void createIcon() {
 		fillInDataList();
-
+		removeAllViews();
 		LayoutParams l = new LayoutParams(FloatingShortcut.sComponentHeight,
 				FloatingShortcut.sComponentHeight);
 		l.setMargins(ICON_MARGIN, ICON_MARGIN, ICON_MARGIN, ICON_MARGIN);
@@ -105,7 +106,6 @@ public class ShortcutsControlPanel extends LinearLayout {
 			QTextView qt = new QTextView(mContext);
 			qt.packageName = mDataList.get(i).pkgName;
 			qt.className = mDataList.get(i).clzName;
-			qt.label = mDataList.get(i).appLabel.toString();
 			qt.setImageDrawable(mDataList.get(i).appIconDrawable);
 
 			qt.setLayoutParams(l);
@@ -120,6 +120,7 @@ public class ShortcutsControlPanel extends LinearLayout {
 			DataHolder dh = new DataHolder();
 			dh.pkgName = apps.getString(0);
 			dh.clzName = apps.getString(1);
+			mDataList.add(dh);
 		}
 		apps.close();
 		fillInDataListIcon();
@@ -137,8 +138,6 @@ public class ShortcutsControlPanel extends LinearLayout {
 						dh.appIconDrawable = info.loadIcon(mContext
 								.getPackageManager());
 					}
-				} else {
-					break;
 				}
 			}
 		}
