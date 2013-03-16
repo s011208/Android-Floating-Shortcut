@@ -1,5 +1,6 @@
 package com.yenhsun.floatingshortcut;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ComponentName;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
@@ -45,6 +47,10 @@ public class ShortcutsControlPanel extends LinearLayout {
 
 	private int x, y;
 
+	private ShortcutDatabase mShortcutDatabase;
+
+	private ArrayList<DataHolder> mDataList = new ArrayList<DataHolder>();
+
 	private void initScreenPosition() {
 		mPanelHeight = FloatingShortcut.sComponentHeight + ICON_MARGIN * 2;
 		mPanelWidth = mPanelHeight * AMOUNT_OF_ICONS;
@@ -56,6 +62,7 @@ public class ShortcutsControlPanel extends LinearLayout {
 	public ShortcutsControlPanel(Context context) {
 		super(context);
 		this.mContext = context;
+		mShortcutDatabase = new ShortcutDatabase(mContext);
 		initScreenPosition();
 		mQuickPanel = this;
 		wm = (WindowManager) mContext.getSystemService("window");
@@ -79,6 +86,7 @@ public class ShortcutsControlPanel extends LinearLayout {
 	}
 
 	public void show() {
+		createIcon();
 		wm.addView(this, wmParams);
 	}
 
@@ -87,23 +95,52 @@ public class ShortcutsControlPanel extends LinearLayout {
 	}
 
 	private void createIcon() {
-		Intent intent = new Intent(Intent.ACTION_MAIN, null);
-		intent.addCategory(Intent.CATEGORY_LAUNCHER);
-		List<ResolveInfo> packages = pm.queryIntentActivities(intent,
-				PackageManager.PERMISSION_GRANTED);
+		fillInDataList();
 
 		LayoutParams l = new LayoutParams(FloatingShortcut.sComponentHeight,
 				FloatingShortcut.sComponentHeight);
 		l.setMargins(ICON_MARGIN, ICON_MARGIN, ICON_MARGIN, ICON_MARGIN);
-		for (int i = 5; i < packages.size() && i < 5 + AMOUNT_OF_ICONS; i++) {
+		for (int i = 0; i < mDataList.size()
+				&& mDataList.size() <= AMOUNT_OF_ICONS; i++) {
 			QTextView qt = new QTextView(mContext);
-			qt.packageName = packages.get(i).activityInfo.packageName;
-			qt.className = packages.get(i).activityInfo.name;
-			qt.label = packages.get(i).loadLabel(pm).toString();
-			qt.setImageDrawable(packages.get(i).loadIcon(pm));
+			qt.packageName = mDataList.get(i).pkgName;
+			qt.className = mDataList.get(i).clzName;
+			qt.label = mDataList.get(i).appLabel.toString();
+			qt.setImageDrawable(mDataList.get(i).appIconDrawable);
 
 			qt.setLayoutParams(l);
 			addView(qt);
+		}
+	}
+
+	private void fillInDataList() {
+		mDataList.clear();
+		Cursor apps = mShortcutDatabase.query();
+		while (apps.moveToNext()) {
+			DataHolder dh = new DataHolder();
+			dh.pkgName = apps.getString(0);
+			dh.clzName = apps.getString(1);
+		}
+		apps.close();
+		fillInDataListIcon();
+	}
+
+	private void fillInDataListIcon() {
+		Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+		mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+		List<ResolveInfo> pkgAppsList = mContext.getPackageManager()
+				.queryIntentActivities(mainIntent, 0);
+		for (ResolveInfo info : pkgAppsList) {
+			for (DataHolder dh : mDataList) {
+				if (info.activityInfo.packageName.equals(dh.pkgName)) {
+					if (info.activityInfo.name.equals(dh.clzName)) {
+						dh.appIconDrawable = info.loadIcon(mContext
+								.getPackageManager());
+					}
+				} else {
+					break;
+				}
+			}
 		}
 	}
 

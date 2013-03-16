@@ -1,5 +1,6 @@
 package com.yenhsun.floatingshortcut;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
@@ -58,7 +59,13 @@ public class ShortcutsSettingPanel extends LinearLayout {
 
 			@Override
 			public void onClick(View v) {
-
+				close();
+				Intent startIntent = new Intent();
+				startIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startIntent.setComponent(new ComponentName(
+						"com.yenhsun.floatingshortcut",
+						"com.yenhsun.floatingshortcut.ShortcutsConfigurationActivity"));
+				mContext.startActivity(startIntent);
 			}
 		});
 		addView(mSettingButton);

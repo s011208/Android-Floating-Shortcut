@@ -19,9 +19,9 @@ public class ShortcutDatabase extends SQLiteOpenHelper {
 
 	private static final String TABLE = "shortcut";
 
-	private static final String COLUMN_PACKAGENAME = "packagename";
+	public static final String COLUMN_PACKAGENAME = "packagename";
 
-	private static final String COLUMN_CLASSNAME = "classname";
+	public static final String COLUMN_CLASSNAME = "classname";
 
 	private SQLiteDatabase mDB;
 
@@ -57,6 +57,11 @@ public class ShortcutDatabase extends SQLiteOpenHelper {
 
 	public void clearTable() {
 		mDB.delete(TABLE, null, null);
+	}
+
+	public void insertShortcuts(ContentValues[] values) {
+		for (ContentValues v : values)
+			mDB.insert(TABLE, null, v);
 	}
 
 	public void insertShortcuts(ContentValues values) {

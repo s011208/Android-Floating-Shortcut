@@ -12,7 +12,6 @@ public class FloatingShortcutMainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
 		this.startService(new Intent(this, FloatingShortcutService.class));
 		this.finish();
 	}

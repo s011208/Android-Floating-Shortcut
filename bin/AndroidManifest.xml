@@ -27,8 +27,12 @@
         </activity>
         <activity
             android:name="com.yenhsun.floatingshortcut.ShortcutsConfigurationActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="com.yenhsun.floatingshortcut.ShortcutList"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Transparent" >
+            android:theme="@style/Theme.Black" >
         </activity>
 
         <service android:name="com.yenhsun.floatingshortcut.FloatingShortcutService" />
