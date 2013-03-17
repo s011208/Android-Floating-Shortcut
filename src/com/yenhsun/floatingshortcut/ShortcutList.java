@@ -1,3 +1,4 @@
+
 package com.yenhsun.floatingshortcut;
 
 import java.util.ArrayList;
@@ -23,111 +24,104 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ShortcutList extends ListActivity {
-	public static final String EXTRA_PKG = "PACKAGENAME";
+    public static final String EXTRA_PKG = "PACKAGENAME";
 
-	public static final String EXTRA_CLZ = "CLASSNAME";
+    public static final String EXTRA_CLZ = "CLASSNAME";
 
-	private ArrayList<DataHolder> mAppList = new ArrayList<DataHolder>();
+    private ArrayList<DataHolder> mAppList = new ArrayList<DataHolder>();
 
-	private AppListAdapter mAppListAdapter;
+    private AppListAdapter mAppListAdapter;
 
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		initAppList();
-		mAppListAdapter = new AppListAdapter(this);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        initAppList();
+        mAppListAdapter = new AppListAdapter(this);
 
-		this.setListAdapter(mAppListAdapter);
-	}
+        this.setListAdapter(mAppListAdapter);
+    }
 
-	protected void onListItemClick(ListView l, View view, int position, long id) {
-		ViewHolder temp = ((ViewHolder) view.getTag());
+    protected void onListItemClick(ListView l, View view, int position, long id) {
+        ViewHolder temp = ((ViewHolder)view.getTag());
 
-		Intent rtn = new Intent();
-		rtn.putExtra(EXTRA_PKG, temp.pkgName);
-		rtn.putExtra(EXTRA_CLZ, temp.clzName);
-		this.setResult(RESULT_OK, rtn);
-		finish();
-	}
+        Intent rtn = new Intent();
+        rtn.putExtra(EXTRA_PKG, temp.pkgName);
+        rtn.putExtra(EXTRA_CLZ, temp.clzName);
+        this.setResult(RESULT_OK, rtn);
+        finish();
+    }
 
-	private void initAppList() {
-		Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-		mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-		List<ResolveInfo> pkgAppsList = getPackageManager()
-				.queryIntentActivities(mainIntent, 0);
-		for (ResolveInfo info : pkgAppsList) {
-			DataHolder dh = new DataHolder();
-			dh.appIconDrawable = info.loadIcon(getPackageManager());
-			dh.appLabel = info.loadLabel(getPackageManager());
-			dh.clzName = info.activityInfo.name;
-			dh.pkgName = info.activityInfo.packageName;
-			mAppList.add(dh);
-		}
-	}
+    private void initAppList() {
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> pkgAppsList = getPackageManager().queryIntentActivities(mainIntent, 0);
+        for (ResolveInfo info : pkgAppsList) {
+            DataHolder dh = new DataHolder();
+            dh.appIconDrawable = info.loadIcon(getPackageManager());
+            dh.appLabel = info.loadLabel(getPackageManager());
+            dh.clzName = info.activityInfo.name;
+            dh.pkgName = info.activityInfo.packageName;
+            mAppList.add(dh);
+        }
+    }
 
+    public final class ViewHolder {
 
+        public ImageView appIcon;
 
-	public final class ViewHolder {
+        public String clzName;
 
-		public ImageView appIcon;
+        public String pkgName;
 
-		public String clzName;
+        public TextView appLabel;
 
-		public String pkgName;
+    }
 
-		public TextView appLabel;
+    class AppListAdapter extends BaseAdapter {
+        private LayoutInflater mInflater;
 
-	}
+        public AppListAdapter(Context context) {
+            this.mInflater = LayoutInflater.from(context);
+        }
 
-	class AppListAdapter extends BaseAdapter {
-		private LayoutInflater mInflater;
+        @Override
+        public int getCount() {
+            // TODO Auto-generated method stub
+            return mAppList.size();
+        }
 
-		public AppListAdapter(Context context) {
-			this.mInflater = LayoutInflater.from(context);
-		}
+        @Override
+        public Object getItem(int position) {
+            // TODO Auto-generated method stub
+            return mAppList.get(position);
+        }
 
-		@Override
-		public int getCount() {
-			// TODO Auto-generated method stub
-			return mAppList.size();
-		}
+        @Override
+        public long getItemId(int position) {
+            // TODO Auto-generated method stub
+            return 0;
+        }
 
-		@Override
-		public Object getItem(int position) {
-			// TODO Auto-generated method stub
-			return mAppList.get(position);
-		}
+        @SuppressWarnings("deprecation")
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            if (convertView == null) {
+                holder = new ViewHolder();
+                convertView = mInflater.inflate(R.layout.configure_app_list, null);
+                holder.appIcon = (ImageView)convertView.findViewById(R.id.icon);
+                holder.appLabel = (TextView)convertView.findViewById(R.id.label);
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder)convertView.getTag();
+            }
 
-		@Override
-		public long getItemId(int position) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
+            holder.appIcon.setBackgroundDrawable(mAppList.get(position).appIconDrawable);
+            holder.clzName = mAppList.get(position).clzName;
+            holder.pkgName = mAppList.get(position).pkgName;
+            holder.appLabel.setText(mAppList.get(position).appLabel);
 
-		@SuppressWarnings("deprecation")
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder = null;
-			if (convertView == null) {
-				holder = new ViewHolder();
-				convertView = mInflater.inflate(R.layout.configure_app_list,
-						null);
-				holder.appIcon = (ImageView) convertView
-						.findViewById(R.id.icon);
-				holder.appLabel = (TextView) convertView
-						.findViewById(R.id.label);
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
-			}
+            return convertView;
+        }
 
-			holder.appIcon
-					.setBackgroundDrawable(mAppList.get(position).appIconDrawable);
-			holder.clzName = mAppList.get(position).clzName;
-			holder.pkgName = mAppList.get(position).pkgName;
-			holder.appLabel.setText(mAppList.get(position).appLabel);
-
-			return convertView;
-		}
-
-	}
+    }
 }

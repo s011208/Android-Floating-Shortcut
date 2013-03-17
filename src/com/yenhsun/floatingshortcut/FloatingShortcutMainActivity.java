@@ -1,3 +1,4 @@
+
 package com.yenhsun.floatingshortcut;
 
 import com.yenhsun.floatingshortcut.R;
@@ -9,13 +10,11 @@ import android.view.Menu;
 
 public class FloatingShortcutMainActivity extends Activity {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		this.startService(new Intent(this, FloatingShortcutService.class));
-		this.finish();
-	}
-
-
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.startService(new Intent(this, FloatingShortcutService.class));
+        this.finish();
+    }
 
 }
