@@ -151,83 +151,95 @@ public class FloatingShortcut extends ImageView implements OnTouchListener {
         return wmParams;
     }
 
+    Thread updateThread;
+
+    private void savePosition() {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                Editor prefsPrivateEditor = sharedPreferences.edit();
+                prefsPrivateEditor.putInt(XKey, wmParams.x);
+                prefsPrivateEditor.putInt(YKey, wmParams.y);
+                prefsPrivateEditor.commit();
+            }
+        });
+    }
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (MotionEvent.ACTION_UP == event.getAction()) {
-            Editor prefsPrivateEditor = sharedPreferences.edit();
-            prefsPrivateEditor.putInt(XKey, wmParams.x);
-            prefsPrivateEditor.putInt(YKey, wmParams.y);
-            prefsPrivateEditor.commit();
+            savePosition();
 
-            // new Thread(new Runnable() {
-            //
-            // @Override
-            // public void run() {
-            // boolean goUp = false, goLeft = false, goDown = false, goRight =
-            // false;
-            //
-            // if (wmParams.x < mScreenWidth / 2 && wmParams.y < mScreenHeight /
-            // 2) {
-            // if (wmParams.x < wmParams.y)
-            // goLeft = true;
-            // else
-            // goUp = true;
-            // } else if (wmParams.x < mScreenWidth / 2 && wmParams.y >
-            // mScreenHeight / 2) {
-            // if (wmParams.x < mScreenHeight - wmParams.y)
-            // goLeft = true;
-            // else
-            // goDown = true;
-            // } else if (wmParams.x > mScreenWidth / 2 && wmParams.y <
-            // mScreenHeight / 2) {
-            // if (mScreenWidth - wmParams.x < wmParams.y)
-            // goRight = true;
-            // else
-            // goUp = true;
-            // } else {
-            // if (mScreenWidth - wmParams.x < mScreenHeight - wmParams.y)
-            // goDown = true;
-            // else
-            // goRight = true;
-            // }
-            //
-            // m_Instrumentation.sendPointerSync(MotionEvent.obtain(
-            // SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-            // MotionEvent.ACTION_DOWN, wmParams.x, wmParams.y, 0));
-            // int counter = 0;
-            // int counterEnd = 0;
-            // if (goUp) {
-            // counterEnd = wmParams.y;
-            // } else if (goLeft) {
-            // counterEnd = wmParams.x;
-            // } else if (goDown) {
-            // counterEnd = mScreenHeight - wmParams.y;
-            // } else {
-            // counterEnd = mScreenWidth - wmParams.x;
-            // }
-            // while (true) {
-            //
-            // if (goUp) {
-            // wmParams.y -= 1;
-            // } else if (goLeft) {
-            // wmParams.x -= 1;
-            // } else if (goDown) {
-            // wmParams.y += 1;
-            // } else {
-            // wmParams.x += 1;
-            // }
-            // m_Instrumentation.sendPointerSync(MotionEvent.obtain(
-            // SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-            // MotionEvent.ACTION_MOVE, wmParams.x, wmParams.y, 0));
-            // if (counter >= counterEnd)
-            // break;
-            // ++counter;
-            // }
-            // m_Instrumentation.sendPointerSync(MotionEvent.obtain(
-            // SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-            // MotionEvent.ACTION_UP, wmParams.x, wmParams.y, 0));
-            // }
-            // }).start();
+            new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    boolean goUp = false, goLeft = false, goDown = false, goRight = false;
+
+                    if (wmParams.x < mScreenWidth / 2 && wmParams.y < mScreenHeight / 2) {
+                        if (wmParams.x < wmParams.y)
+                            goLeft = true;
+                        else
+                            goUp = true;
+                    } else if (wmParams.x < mScreenWidth / 2 && wmParams.y > mScreenHeight / 2) {
+                        if (wmParams.x < mScreenHeight - wmParams.y)
+                            goLeft = true;
+                        else
+                            goDown = true;
+                    } else if (wmParams.x > mScreenWidth / 2 && wmParams.y < mScreenHeight / 2) {
+                        if (mScreenWidth - wmParams.x < wmParams.y)
+                            goRight = true;
+                        else
+                            goUp = true;
+                    } else {
+                        if (mScreenWidth - wmParams.x < mScreenHeight - wmParams.y)
+                            goDown = true;
+                        else
+                            goRight = true;
+                    }
+
+                    int counter = 0;
+                    int counterEnd = 0;
+                    if (goUp) {
+                        counterEnd = wmParams.y;
+                    } else if (goLeft) {
+                        counterEnd = wmParams.x;
+                    } else if (goDown) {
+                        counterEnd = mScreenHeight - wmParams.y;
+                    } else {
+                        counterEnd = mScreenWidth - wmParams.x;
+                    }
+                    while (true) {
+
+                        if (goUp) {
+                            wmParams.y -= 1;
+                        } else if (goLeft) {
+                            wmParams.x -= 1;
+                        } else if (goDown) {
+                            wmParams.y += 1;
+                        } else {
+                            wmParams.x += 1;
+                        }
+                        try {
+                            if (counter % 3 == 0)
+                                Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        post(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                wm.updateViewLayout(mFloatingShortcut, wmParams);
+                            }
+                        });
+                        if (counter >= counterEnd)
+                            break;
+                        ++counter;
+                    }
+                    savePosition();
+                }
+            }).start();
 
         }
         return mGDetector.onTouchEvent(event);
